@@ -1,15 +1,20 @@
 "use client";
 
-import { memo } from "react";
 import Image from "next/image";
+import { memo } from "react";
 
-//custom
 import { navElements } from "@/constants";
 import { ActiveElement, NavbarProps } from "@/types/type";
-import ActiveUsersComponent from "../users/ActiveUsersComponent";
 
-const NavbarComponent = ({
+import { Button } from "../ui/button";
+import ActiveUsers from "../users/ActiveUsersComponent";
+import ShapesMenuComponent from "./ShapeMenuComponent";
+import { NewThreadComponent } from "../comments/NewThreadComponent";
+
+const Navbar = ({
   activeElement,
+  imageInputRef,
+  handleImageUpload,
   handleActiveElement,
 }: NavbarProps) => {
   const isActive = (value: string | Array<ActiveElement>) =>
@@ -18,17 +23,13 @@ const NavbarComponent = ({
       value.some((val) => val?.value === activeElement?.value));
 
   return (
-    <nav className="flex select-none items-center justify-between gap-4 bg-primary-black px-5 text-white py-2">
-      <div className="flex items-center">
-        <Image
-          src="/assets/logo.svg"
-          alt="Illustration-logo"
-          width={30}
-          height={30}
-          className="mr-4"
-        />
-        <span className="text-white text-xl">Illustration</span>
-      </div>
+    <nav className="flex select-none items-center justify-between gap-4 bg-primary-black px-5 text-white">
+      <Image
+        src="/assets/logo.svg"
+        alt="illustration-logo"
+        width={30}
+        height={30}
+      />
 
       <ul className="flex flex-row">
         {navElements.map((item: ActiveElement | any) => (
@@ -45,16 +46,48 @@ const NavbarComponent = ({
                 : "hover:bg-primary-grey-200"
             }
             `}
-          ></li>
+          >
+            {/* If value is an array means it's a nav element with sub options i.e., dropdown */}
+            {Array.isArray(item.value) ? (
+              <ShapesMenuComponent
+                item={item}
+                activeElement={activeElement}
+                imageInputRef={imageInputRef}
+                handleActiveElement={handleActiveElement}
+                handleImageUpload={handleImageUpload}
+              />
+            ) : item?.value === "comments" ? (
+              // If value is comments, trigger the NewThread component
+              <NewThreadComponent>
+                <Button className="relative w-5 h-5 object-contain">
+                  <Image
+                    src={item.icon}
+                    alt={item.name}
+                    fill
+                    className={isActive(item.value) ? "invert" : ""}
+                  />
+                </Button>
+              </NewThreadComponent>
+            ) : (
+              <Button className="relative w-5 h-5 object-contain">
+                <Image
+                  src={item.icon}
+                  alt={item.name}
+                  fill
+                  className={isActive(item.value) ? "invert" : ""}
+                />
+              </Button>
+            )}
+          </li>
         ))}
       </ul>
 
-      <ActiveUsersComponent />
+      <ActiveUsers />
     </nav>
   );
 };
 
 export default memo(
-  NavbarComponent,
+  Navbar,
   (prevProps, nextProps) => prevProps.activeElement === nextProps.activeElement
 );
