@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
-import { useMutation, useStorage } from "@/liveblocks.config";
+import { useMutation, useRedo, useStorage, useUndo } from "@/liveblocks.config";
 
 //custom
 import {
@@ -16,7 +16,7 @@ import {
 } from "@/lib/canvas";
 import { ActiveElement } from "@/types/type";
 import { defaultNavElement } from "@/constants";
-import { handleDelete } from "@/lib/key-events";
+import { handleDelete, handleKeyDown } from "@/lib/key-events";
 
 //components
 import LeftSideBarComponent from "@/components/layout/LeftSideBarComponent";
@@ -25,11 +25,14 @@ import NavbarComponent from "@/components/layout/NavbarComponent";
 import RightSideBarComponent from "@/components/layout/RightSideBarComponent";
 
 export default function Page() {
+  const undo = useUndo();
+  const redo = useRedo();
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<fabric.Canvas | null>(null);
   const isDrawing = useRef(false);
   const shapeRef = useRef<fabric.Object | null>(null);
-  const selectedShapeRef = useRef<string | null>("rectangle");
+  const selectedShapeRef = useRef<string | null>(null);
   const activeObjectRef = useRef<fabric.Object | null>(null);
 
   const [activeElement, setActiveElement] = useState<ActiveElement>({
@@ -94,7 +97,7 @@ export default function Page() {
   useEffect(() => {
     const canvas = initializeFabric({ canvasRef, fabricRef });
 
-    canvas.on("mouse:down", (options) => {
+    canvas.on("mouse:down", (options: any) => {
       handleCanvasMouseDown({
         options,
         canvas,
@@ -104,7 +107,7 @@ export default function Page() {
       });
     });
 
-    canvas.on("mouse:move", (options) => {
+    canvas.on("mouse:move", (options: any) => {
       handleCanvaseMouseMove({
         options,
         canvas,
@@ -115,7 +118,7 @@ export default function Page() {
       });
     });
 
-    canvas.on("mouse:up", (options) => {
+    canvas.on("mouse:up", () => {
       handleCanvasMouseUp({
         canvas,
         selectedShapeRef,
@@ -127,7 +130,7 @@ export default function Page() {
       });
     });
 
-    canvas.on("object:modified", (options) => {
+    canvas.on("object:modified", (options: any) => {
       handleCanvasObjectModified({
         options,
         syncShapeInStorage,
@@ -137,6 +140,17 @@ export default function Page() {
     window.addEventListener("resize", () => {
       handleResize({
         canvas: fabricRef.current,
+      });
+    });
+
+    window.addEventListener("keydown", (e: any) => {
+      handleKeyDown({
+        e,
+        canvas: fabricRef.current,
+        undo,
+        redo,
+        syncShapeInStorage,
+        deleteShapeFromStorage,
       });
     });
 
