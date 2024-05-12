@@ -13,6 +13,7 @@ import CursorChatComponent from "../cursor/CursorChatComponent";
 import ReactionSelector from "../reaction/ReactionButtonComponent";
 import FlyingReaction from "../reaction/FlyingReactionComponent";
 import useInterval from "@/hooks/useInterval";
+import { Comments } from "../comments/Comments";
 
 type Props = {
   canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
@@ -204,6 +205,8 @@ const LiveComponent = ({ canvasRef }: Props) => {
       )}
 
       <LiveCursorsComponent others={others} />
+
+      <Comments />
     </div>
   );
 };
