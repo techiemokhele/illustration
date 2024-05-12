@@ -219,7 +219,7 @@ export default function Page() {
       <section className="flex h-full flex-row">
         <LeftSideBarComponent allShapes={Array.from(canvasObjects)} />
 
-        <LiveComponent canvasRef={canvasRef} />
+        <LiveComponent canvasRef={canvasRef} undo={undo} redo={redo} />
 
         <RightSideBarComponent
           elementAttributes={elementAttributes}
