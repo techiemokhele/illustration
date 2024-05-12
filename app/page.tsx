@@ -23,6 +23,7 @@ import LeftSideBarComponent from "@/components/layout/LeftSideBarComponent";
 import LiveComponent from "@/components/layout/LiveComponent";
 import NavbarComponent from "@/components/layout/NavbarComponent";
 import RightSideBarComponent from "@/components/layout/RightSideBarComponent";
+import { handleImageUpload } from "@/lib/shapes";
 
 export default function Page() {
   const undo = useUndo();
@@ -34,6 +35,7 @@ export default function Page() {
   const shapeRef = useRef<fabric.Object | null>(null);
   const selectedShapeRef = useRef<string | null>(null);
   const activeObjectRef = useRef<fabric.Object | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const [activeElement, setActiveElement] = useState<ActiveElement>({
     name: "",
@@ -86,6 +88,15 @@ export default function Page() {
       case "delete":
         handleDelete(fabricRef.current as any, deleteShapeFromStorage);
         setActiveElement(defaultNavElement);
+        break;
+      case "image":
+        imageInputRef.current?.click();
+        isDrawing.current = false;
+
+        if (fabricRef.current) {
+          fabricRef.current.isDrawingMode = false;
+        }
+        break;
       default:
         break;
     }
@@ -173,6 +184,17 @@ export default function Page() {
       <NavbarComponent
         activeElement={activeElement}
         handleActiveElement={handleActiveElement}
+        imageInputRef={imageInputRef}
+        handleImageUpload={(e: any) => {
+          e.stopPropagation();
+
+          handleImageUpload({
+            file: e.target.files[0],
+            canvas: fabricRef as any,
+            shapeRef,
+            syncShapeInStorage,
+          });
+        }}
       />
 
       <section className="flex h-full flex-row">
