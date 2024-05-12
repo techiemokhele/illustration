@@ -14,7 +14,11 @@ import ReactionSelector from "../reaction/ReactionButtonComponent";
 import FlyingReaction from "../reaction/FlyingReactionComponent";
 import useInterval from "@/hooks/useInterval";
 
-const LiveComponent = () => {
+type Props = {
+  canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
+};
+
+const LiveComponent = ({ canvasRef }: Props) => {
   const others = useOthers();
   const [{ cursor }, updateMyPresence] = useMyPresence() as any;
 
@@ -25,6 +29,7 @@ const LiveComponent = () => {
 
   const broadcast = useBroadcastEvent();
 
+  //remove my reactions
   useInterval(() => {
     setReactions((reaction) =>
       reaction.filter((r) => r.timestamp > Date.now() - 4000)
@@ -166,13 +171,14 @@ const LiveComponent = () => {
 
   return (
     <div
+      id="canvas"
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       className="h-[100vh] w-full flex justify-center items-center text-cente"
     >
-      <h1 className="text-white">Main</h1>
+      <canvas ref={canvasRef} />
 
       {reaction.map((r) => (
         <FlyingReaction
